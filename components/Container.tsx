@@ -1,39 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { SafeAreaView, FlatList, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import axios from 'axios';
 
 import Item from './Item';
+import { useCatFacts } from '../hooks/useCatFacts';
 
 const Container: React.FunctionComponent = () => {
   const renderItem = ({ item }) => <Item title={item.text} />;
-
-  const [facts, setFacts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-
-  useEffect(() => {
-    setLoading(true);
-    axios.get('https://cat-fact.herokuapp.com/facts/random', {
-      params: {
-        animal_type: 'cat',
-        amount: 3,
-      }
-    })
-    .then((response) => {
-      setFacts(prevFacts => [...prevFacts, ...response.data]);
-      setLoading(false);
-    })
-    .catch((e) => setError(e.message));
-  }, [page]);
+  const {
+    facts,
+    loading,
+    error,
+    loadMore,
+  } = useCatFacts();
 
   return (
     <SafeAreaView style={styles.container}>
       <FlatList data={facts} renderItem={renderItem} keyExtractor={item => item._id} />
       {!!facts.length && (
         <TouchableOpacity
-          onPress={() => setPage(prevPage => prevPage + 1)}
+          onPress={loadMore}
           style={styles.button}
           disabled={loading}
         >
